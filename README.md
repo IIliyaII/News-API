@@ -1,98 +1,103 @@
-# News API Mailer
+# News API
 
-A small Python script that fetches the latest news about a topic from [NewsAPI](https://newsapi.org/) and emails the top article (title + description) to you via Gmail SMTP.
+A Python automation tool that fetches news from [NewsAPI](https://newsapi.org/) and sends selected news to an email address.
+
+## Features
+
+* Fetch news from NewsAPI
+* Filter news by keyword
+* Send news results via email
+* Load sensitive configuration from environment variables
+* Manage dependencies with `uv`
 
 ## Requirements
 
-- Python 3.10+
-- [uv](https://docs.astral.sh/uv/)
-- A NewsAPI key
-- A Gmail account with 2-Step Verification and an App Password
+* Python 3.12+
+* A [NewsAPI](https://newsapi.org/) API key
+* An email account that supports SMTP authentication
 
-## Setup
+## Installation
+
+### 1. Clone the repository
 
 ```bash
-git clone <your-repo-url>
-cd news_api
+git clone https://github.com/IIliyaII/News-API.git
+cd News-API
+```
+
+### 2. Install dependencies
+
+This project uses `uv` for dependency management.
+
+```bash
 uv sync
 ```
 
-Create a `.env` file in the **project root** (see below), then run:
+### 3. Configure environment variables
 
-```bash
-uv run python path/to/main.py   # adjust to your entry file
-```
-
-## Environment variables
-
-The script reads its configuration from a `.env` file in the project root. All four variables are **required**; the script exits with an error if any is missing or empty.
-
-| Variable   | Description                                             | Example                    |
-|------------|---------------------------------------------------------|----------------------------|
-| `api_key`  | Your NewsAPI key                                        | `0123456789abcdef...`      |
-| `email`    | Gmail address used to **send** the email                | `you@gmail.com`            |
-| `password` | Gmail **App Password** (not your normal password)       | `abcd efgh ijkl mnop`      |
-| `mail`     | Address that **receives** the email                     | `recipient@example.com`    |
-
-### Example `.env`
+Create a `.env` file in the project root:
 
 ```env
-api_key=your_newsapi_key_here
-email=you@gmail.com
-password=your_gmail_app_password
-mail=recipient@example.com
+NEWS_API_KEY=your_news_api_key
+EMAIL_ADDRESS=your_email@example.com
+EMAIL_PASSWORD=your_email_password
 ```
 
-Do not wrap values in quotes and do not put spaces around `=`.
+> Do not commit your `.env` file to Git. It contains sensitive credentials.
 
-### Where to get the values
+### 4. Run the application
 
-**`api_key`**
-1. Register at <https://newsapi.org/register>.
-2. Copy the key from your account dashboard.
+```bash
+uv run news_api
+```
 
-Note: the free Developer plan limits requests per day and only returns articles from roughly the last month. Check your plan's limits on the NewsAPI site.
+## Project Structure
 
-**`password` (Gmail App Password)**
-1. Enable 2-Step Verification on your Google account.
-2. Go to <https://myaccount.google.com/apppasswords>.
-3. Create an app password and copy the 16-character code.
+```text
+News-API/
+├── src/
+│   └── news_api/
+│       └── ...
+├── .env
+├── .gitignore
+├── pyproject.toml
+├── uv.lock
+└── README.md
+```
 
-Your regular Gmail password will **not** work; Google rejects it for SMTP logins.
+## Configuration
+
+The application uses environment variables to keep sensitive information outside the source code.
+
+| Variable         | Description                                           |
+| ---------------- | ----------------------------------------------------- |
+| `NEWS_API_KEY`   | API key used to access NewsAPI                        |
+| `EMAIL_ADDRESS`  | Email address used to send notifications              |
+| `EMAIL_PASSWORD` | Password or app password used for SMTP authentication |
+
+## Development
+
+To run the project through the Python module directly:
+
+```bash
+uv run python -m news_api
+```
+
+The project also provides a command-line entry point:
+
+```bash
+uv run news_api
+```
 
 ## Security
 
-- `.env` contains secrets. Make sure it is listed in `.gitignore` **before** your first commit:
+Never commit API keys, passwords, tokens, or other secrets to Git.
 
-  ```gitignore
-  .env
-  .venv/
-  ```
+The `.env` file is excluded through `.gitignore`.
 
-- If `.env` was ever committed, it stays in git history. Revoke and regenerate both the NewsAPI key and the Gmail App Password.
-- Never paste your `.env` contents into issues, screenshots, or chats.
+If a secret is accidentally committed, simply deleting it from the latest commit is not enough. The exposed credential should be revoked and replaced.
 
-## Troubleshooting
+## License
 
-| Symptom                               | Likely cause                                                        |
-|---------------------------------------|---------------------------------------------------------------------|
-| `.env file not found`                 | `.env` is not in the expected location (project root)               |
-| `Missing required env var: ...`       | Variable is not defined in `.env` or has a different name           |
-| `NewsAPI error 401`                   | Invalid `api_key`                                                   |
-| `NewsAPI error 429`                   | Daily request limit reached                                         |
-| `NewsAPI error 400/426` or no articles| Date range outside your plan's limit, or the query returned nothing |
-| `SMTP login failed`                   | Using your normal password instead of an App Password, or a typo    |
+This project is available under the MIT License.
 
-## Project structure
-
-```
-news_api/
-├── pyproject.toml
-├── uv.lock
-├── .env            # not committed
-├── .gitignore
-└── src/news_api/
-    └── main.py
-```
-
-Adjust this section to match your actual layout.
